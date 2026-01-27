@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking API Test Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .stat-number {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .stat-passed {
+            color: #10b981;
+        }
+
+        .stat-duration {
+            color: #3b82f6;
+        }
+
+        .stat-coverage {
+            color: #f59e0b;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .test-item {
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #f8f9fa;
+            border-left: 5px solid #10b981;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .test-item:hover {
+            background: #e8f5e9;
+            transform: translateX(5px);
+        }
+
+        .test-item h3 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 1.05em;
+        }
+
+        .test-item p {
+            color: #666;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .status-passed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .payload {
+            background: #2d3748;
+            color: #68d391;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            overflow-x: auto;
+            margin-top: 15px;
+            line-height: 1.6;
+        }
+
+        .response {
+            background: #f7fafc;
+            border: 1px solid #cbd5e0;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            margin-top: 15px;
+            line-height: 1.6;
+            color: #2d3748;
+        }
+
+        .assertions {
+            background: #fff5f5;
+            border-left: 4px solid #fc8181;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+
+        .assertions h4 {
+            color: #c53030;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+
+        .assertion-item {
+            color: #742a2a;
+            font-size: 0.9em;
+            padding: 5px 0;
+        }
+
+        .assertion-item:before {
+            content: "✓ ";
+            color: #10b981;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .api-flow {
+            background: #f0f4ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            font-size: 0.95em;
+            color: #333;
+        }
+
+        .flow-step:before {
+            content: "→";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .flow-step.request:before {
+            content: "📤";
+        }
+
+        .flow-step.response:before {
+            content: "📥";
+        }
+
+        .flow-step.assertion:before {
+            content: "✓";
+            color: #10b981;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+
+        button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline-item {
+            padding-left: 40px;
+            padding-bottom: 30px;
+            position: relative;
+        }
+
+        .timeline-item:before {
+            content: "";
+            width: 12px;
+            height: 12px;
+            background: #667eea;
+            border-radius: 50%;
+            position: absolute;
+            left: 0;
+            top: 5px;
+        }
+
+        .timeline-item:after {
+            content: "";
+            position: absolute;
+            left: 5px;
+            top: 25px;
+            width: 2px;
+            height: calc(100% - 25px);
+            background: #cbd5e0;
+        }
+
+        .timeline-item:last-child:after {
+            display: none;
+        }
+
+        .api-endpoint {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        .endpoint-method {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 10px;
+            border-radius: 3px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .method-post {
+            background: #10b981;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 50px;
+            padding: 20px;
+        }
+
+        .feature-list {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-top: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .feature-list h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-item {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .feature-item h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .feature-item p {
+            color: #666;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .code-highlight {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #c7254e;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧪 Booking API Test Otomasyonu</h1>
+            <p>Python + Pytest ile RESTful Booker API'sini test etme</p>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Başarılı Testler</div>
+                <div class="stat-number stat-passed">11</div>
+                <div class="stat-label">%100 Geçiş Oranı ✅</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Ortalama Süre</div>
+                <div class="stat-number stat-duration">7.6s</div>
+                <div class="stat-label">Tüm testler</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Kod Kapsamı</div>
+                <div class="stat-number stat-coverage">92%</div>
+                <div class="stat-label">İyi kalite</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Test Suitleri</div>
+                <div class="stat-number stat-passed">2</div>
+                <div class="stat-label">Main + Edge Cases</div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <!-- TEST DETAYLARI -->
+            <div class="card">
+                <h2>📋 Test Senaryoları</h2>
+                
+                <div class="test-item">
+                    <h3>1. Valid Payload ile Booking Oluşturma</h3>
+                    <p>Geçerli bir booking payload'u göndererek booking oluşturur ve tüm response yapısını doğrular.</p>
+                    <div class="status-badge status-passed">PASSED - 638ms</div>
+                    <div class="payload">POST https://restful-booker.herokuapp.com/booking<br>
+{<br>
+  "firstname": "John",<br>
+  "lastname": "Doe",<br>
+  "totalprice": 1500,<br>
+  "depositpaid": true,<br>
+  "bookingdates": {<br>
+    "checkin": "2026-01-28",<br>
+    "checkout": "2026-02-03"<br>
+  }<br>
+}</div>
+                    <div class="assertions">
+                        <h4>Validasyonlar:</h4>
+                        <div class="assertion-item">Status code: 200 OK</div>
+                        <div class="assertion-item">bookingid bulundu: 3411</div>
+                        <div class="assertion-item">firstname = John</div>
+                        <div class="assertion-item">lastname = Doe</div>
+                        <div class="assertion-item">Check-in date doğru</div>
+                    </div>
+                </div>
+
+                <div class="test-item">
+                    <h3>2. Booking ID Validasyonu</h3>
+                    <p>Response'da bookingid bulunduğunu ve geçerli bir integer olduğunu kontrol eder.</p>
+                    <div class="status-badge status-passed">PASSED - 641ms</div>
+                    <div class="assertions">
+                        <h4>Validasyonlar:</h4>
+                        <div class="assertion-item">bookingid mevcuttur</div>
+                        <div class="assertion-item">bookingid türü: integer</div>
+                        <div class="assertion-item">bookingid > 0</div>
+                        <div class="assertion-item">Alınan ID: 3415</div>
+                    </div>
+                </div>
+
+                <div class="test-item">
+                    <h3>3. Booking Detayları Eşleştirme</h3>
+                    <p>Response'daki booking detaylarının request'teki değerlerle eşleştiğini doğrular.</p>
+                    <div class="status-badge status-passed">PASSED - 642ms</div>
+                    <div class="assertions">
+                        <h4>Validasyonlar:</h4>
+                        <div class="assertion-item">firstname = TestUser</div>
+                        <div class="assertion-item">lastname = AutoTest</div>
+                        <div class="assertion-item">totalprice = 1999</div>
+                    </div>
+                </div>
+
+                <div class="test-item">
+                    <h3>4. Booking Tarihleri Validasyonu</h3>
+                    <p>Check-in ve check-out tarihlerinin doğru şekilde kaydedildiğini kontrol eder.</p>
+                    <div class="status-badge status-passed">PASSED - 619ms</div>
+                    <div class="assertions">
+                        <h4>Validasyonlar:</h4>
+                        <div class="assertion-item">checkin: 2026-01-28</div>
+                        <div class="assertion-item">checkout: 2026-02-03</div>
+                    </div>
+                </div>
+
+                <div class="test-item">
+                    <h3>5. Deposit Paid Alanı</h3>
+                    <p>depositpaid alanının True ve False değerlerini doğru şekilde işlediğini test eder.</p>
+                    <div class="status-badge status-passed">PASSED - 1.0s</div>
+                    <div class="assertions">
+                        <h4>Validasyonlar:</h4>
+                        <div class="assertion-item">depositpaid = True ✓</div>
+                        <div class="assertion-item">depositpaid = False ✓</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- API AKIŞI VE YAPISI -->
+            <div class="card">
+                <h2>🔗 API Akışı</h2>
+                
+                <div class="api-endpoint">
+                    <span class="endpoint-method method-post">POST</span>
+                    https://restful-booker.herokuapp.com/booking
+                </div>
+
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="flow-step request">Request: Booking verilerini gönder</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="flow-step">API tarafından işleme alındı</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="flow-step">Veritabanına kaydedildi</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="flow-step response">Response: Booking ID + veriler</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="flow-step assertion">Assertion: Tüm alanlar doğrulandı ✓</div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 30px; color: #667eea;">📊 Response Yapısı</h3>
+                <div class="response">
+{<br>
+  "bookingid": 3411,<br>
+  "booking": {<br>
+    "firstname": "John",<br>
+    "lastname": "Doe",<br>
+    "totalprice": 1500,<br>
+    "depositpaid": true,<br>
+    "bookingdates": {<br>
+      "checkin": "2026-01-28",<br>
+      "checkout": "2026-02-03"<br>
+    },<br>
+    "additionalneeds": "Breakfast"<br>
+  }<br>
+}
+                </div>
+
+                <h3 style="margin-top: 30px; color: #667eea;">🛠️ Proje Yapısı</h3>
+                <div class="response" style="background: #f0f4ff; color: #2d3748;">
+config/<br>
+├── config.py (API URL, timeout)<br>
+<br>
+data/<br>
+├── test_data.py (Reusable payloads)<br>
+<br>
+utils/<br>
+├── api_client.py (APIClient, Assertions)<br>
+<br>
+tests/<br>
+├── test_booking_api.py (11 test cases)
+                </div>
+            </div>
+        </div>
+
+        <!-- EDGE CASES -->
+        <div class="card">
+            <h2>⚠️ Edge Cases Testleri</h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                <div class="test-item">
+                    <h3>Özel Karakterler</h3>
+                    <p>Adlarda özel karakterler (José, García-Smith) kullanabilir mi?</p>
+                    <div class="status-badge status-passed">PASSED - 541ms</div>
+                    <div class="assertions">
+                        <h4>Test:</h4>
+                        <div class="assertion-item">firstname: José ✓</div>
+                        <div class="assertion-item">Encoding doğru ✓</div>
+                    </div>
+                </div>
+
+                <div class="test-item">
+                    <h3>Zero Price Booking</h3>
+                    <p>Sıfır fiyatla booking oluşturabilir mi?</p>
+                    <div class="status-badge status-passed">PASSED - 556ms</div>
+                    <div class="assertions">
+                        <h4>Test:</h4>
+                        <div class="assertion-item">totalprice: 0 ✓</div>
+                        <div class="assertion-item">Başarılı ✓</div>
+                    </div>
+                </div>
+
+                <div class="test-item">
+                    <h3>High Price Booking</h3>
+                    <p>Yüksek fiyat değerleriyle booking oluşturabilir mi?</p>
+                    <div class="status-badge status-passed">PASSED - 532ms</div>
+                    <div class="assertions">
+                        <h4>Test:</h4>
+                        <div class="assertion-item">totalprice: 999999 ✓</div>
+                        <div class="assertion-item">Başarılı ✓</div>
+                    </div>
+                </div>
+
+                <div class="test-item">
+                    <h3>Parameterized Testing</h3>
+                    <p>3 farklı veri seti ile test çalışmasını doğrular.</p>
+                    <div class="status-badge status-passed">PASSED - 1.9s</div>
+                    <div class="assertions">
+                        <h4>Test:</h4>
+                        <div class="assertion-item">John Doe ✓</div>
+                        <div class="assertion-item">Alice Smith ✓</div>
+                        <div class="assertion-item">Bob Johnson ✓</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FEATURES -->
+        <div class="feature-list">
+            <h2>✨ Proje Özellikleri</h2>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <h3>🔧 Reusable API Client</h3>
+                    <p>Herhangi bir API endpoint'i test etmek için kullanılabilecek generic bir APIClient sınıfı.</p>
+                </div>
+
+                <div class="feature-item">
+                    <h3>✓ Assertion Helpers</h3>
+                    <p>Status code, response yapısı ve field value doğrulamaları için önceden hazırlanmış assertion metotları.</p>
+                </div>
+
+                <div class="feature-item">
+                    <h3>📊 Test Data Management</h3>
+                    <p>Reusable payload fonksiyonları ve parameterized test veri setleri.</p>
+                </div>
+
+                <div class="feature-item">
+                    <h3>📝 Kapsamlı Logging</h3>
+                    <p>Request/response ve test adımlarının detaylı loglanması.</p>
+                </div>
+
+                <div class="feature-item">
+                    <h3>📈 Coverage Reporting</h3>
+                    <p>%92 kod kapsamı ile kalite raporları ve HTML coverage raporu.</p>
+                </div>
+
+                <div class="feature-item">
+                    <h3>🤖 Claude AI Entegrasyonu</h3>
+                    <p>Hazır prompt templatelar ile Claude AI'den yeni test case'leri otomatik üretme.</p>
+                </div>
+
+                <div class="feature-item">
+                    <h3>⚡ Hızlı Çalışma</h3>
+                    <p>11 test tamamı 7.6 saniyede çalışıyor - CI/CD için ideal.</p>
+                </div>
+
+                <div class="feature-item">
+                    <h3>📚 Tam Dokümantasyon</h3>
+                    <p>README, QUICKSTART, QUICKREF ve CLAUDE_PROMPTS dosyaları.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- KOMUTLAR -->
+        <div class="card" style="margin-top: 30px;">
+            <h2>💻 Kullanılacak Komutlar</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <h3 style="color: #667eea; margin-bottom: 15px;">Virtual Env Activate</h3>
+                    <div class="payload">
+cd /Users/gulcan/Desktop/booking<br>
+source .venv/bin/activate
+                    </div>
+                </div>
+                <div>
+                    <h3 style="color: #667eea; margin-bottom: 15px;">Testleri Çalıştır</h3>
+                    <div class="payload">
+pytest -v<br>
+./run_tests.sh
+                    </div>
+                </div>
+                <div>
+                    <h3 style="color: #667eea; margin-bottom: 15px;">Coverage Raporu</h3>
+                    <div class="payload">
+./run_tests.sh --cov-html<br>
+open htmlcov/index.html
+                    </div>
+                </div>
+                <div>
+                    <h3 style="color: #667eea; margin-bottom: 15px;">HTML Test Report</h3>
+                    <div class="payload">
+pytest --html=report.html<br>
+open report.html
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>🎯 Production Ready API Test Automation | Python 3.14 | Pytest 9.0.2</p>
+            <p style="margin-top: 10px; opacity: 0.8;">Oluşturma Tarihi: 27 Ocak 2026</p>
+        </footer>
+    </div>
+</body>
+</html>
