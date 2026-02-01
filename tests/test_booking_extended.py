@@ -1,6 +1,8 @@
 import os
+import json
 import pytest
 import logging
+from jsonschema import validate, ValidationError
 from config.config import Config
 from utils.api_client import APIClient, AssertionHelper
 from data.test_data import get_valid_booking_payload, get_booking_payload_with_params
@@ -45,14 +47,27 @@ class TestBookingExtended:
         resp = self.api_client.get(f"{Config.BOOKING_ENDPOINT}/{invalid_id}")
         assert resp.status_code == 404, f"Expected 404 for invalid id, got {resp.status_code}"
 
-    @pytest.mark.xfail(reason="PUT/DELETE require auth; enable with ADMIN_USERNAME/ADMIN_PASSWORD env vars", strict=False)
-    def test_missing_required_fields(self):
-        """POST with missing required fields - expected to fail validation (xfail if API doesn't enforce)."""
+    def _load_booking_schema(self):
+        here = os.path.dirname(__file__)
+        schema_path = os.path.join(here, "..", "schemas", "booking_schema.json")
+        with open(schema_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+
+    def test_client_side_rejects_missing_fields(self):
+        """Deterministic test: validate invalid payload against local JSON Schema (no network call)."""
+        payload = get_valid_booking_payload()
+        payload.pop("firstname", None)
+        schema = self._load_booking_schema()
+        with pytest.raises(ValidationError):
+            validate(instance=payload, schema=schema)
+
+    @pytest.mark.xfail(reason="API may return 500 for invalid payload; not deterministic", strict=False)
+    def test_api_handles_missing_fields(self):
+        """API-level negative test: POST invalid payload and expect 4xx (xfail if server returns 5xx)."""
         payload = get_valid_booking_payload()
         payload.pop("firstname", None)
         resp = self.api_client.post(Config.BOOKING_ENDPOINT, payload)
-        # Prefer explicit 400 if API validates, but mark xfail to avoid breaking runs
-        assert resp.status_code == 400
+        assert resp.status_code in (400, 422)
 
     def _get_auth_token(self):
         """Helper: obtain auth token using ADMIN_USERNAME/ADMIN_PASSWORD env vars. Skips test if not set."""

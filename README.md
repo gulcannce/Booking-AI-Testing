@@ -258,6 +258,25 @@ def test_new_scenario(self):
 For questions or issues:
 1. Check test logs in console output
 2. Review API response in assertion error messages
+
+## 🔐 CI & Auth Tests
+
+The repository includes a GitHub Actions workflow that runs the test suite and uploads coverage reports as artifacts. A few notes about auth-enabled (update/delete) tests:
+
+- **Repository secrets**: To enable tests that require admin credentials (update/delete), add the following repository secrets:
+  - `ADMIN_USERNAME` — admin username
+  - `ADMIN_PASSWORD` — admin password
+
+- **How to add secrets**:
+  1. Go to your repository on GitHub.
+  2. Settings → Secrets and variables → Actions → New repository secret.
+  3. Add `ADMIN_USERNAME` and `ADMIN_PASSWORD` with their values.
+
+- **Behavior**: The workflow exposes these secrets as environment variables during the `pytest` steps. If secrets are present, auth tests will run; if they are missing, those tests will be skipped in CI (or locally they will be skipped unless you set the env vars).
+
+- **Security**: Never hard-code credentials in the repo. Use secrets only via GitHub Settings.
+
+If you want, I can also add a small GitHub Actions job that validates secrets are present and fails early with a clear message when they're missing (useful for protected branches). Let me know if you want that.
 3. Verify payload structure in test_data.py
 4. Check API documentation for endpoint changes
 
