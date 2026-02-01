@@ -7,11 +7,31 @@ on:
     branches: [ main ]
 
 jobs:
+  secrets-check:
+    runs-on: ubuntu-latest
+    outputs:
+      secrets-present: ${{ steps.check.outputs.secrets_present }}
+    steps:
+      - name: Check required secrets
+        id: check
+        run: |
+          # Map secrets into env variables
+          ADMIN_USERNAME="${{ secrets.ADMIN_USERNAME }}"
+          ADMIN_PASSWORD="${{ secrets.ADMIN_PASSWORD }}"
+          if [ -z "$ADMIN_USERNAME" ] || [ -z "$ADMIN_PASSWORD" ]; then
+            echo "::error::Required secrets ADMIN_USERNAME and ADMIN_PASSWORD are not set.\nAdd them under Settings → Secrets and variables → Actions.\nAuth-enabled tests will fail or be skipped without these secrets."
+            echo "secrets_present=false" >> $GITHUB_OUTPUT
+            exit 1
+          else
+            echo "secrets_present=true" >> $GITHUB_OUTPUT
+          fi
+
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [3.11]
+    needs: [secrets-check]
 
     steps:
       - uses: actions/checkout@v4
