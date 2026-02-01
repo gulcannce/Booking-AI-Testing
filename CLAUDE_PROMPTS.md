@@ -245,4 +245,32 @@ def test_get_booking_by_id(self):
 
 ---
 
+  ## 🧪 Concrete AI-Assisted Example (Short)
+
+  ### Prompt (to Claude)
+  ```
+  You are a senior QA automation engineer. Given the existing pytest project (APIClient + AssertionHelper), generate a test case that:
+  - Creates a booking with firstname "AIUser" and lastname "Assistant"
+  - Verifies the POST response contains bookingid and booking fields
+  - Retrieves the booking by id and verifies firstname/lastname match
+  Return only the complete Python test function body compatible with pytest class-based tests used in this repo.
+  ```
+
+  ### Example Claude Output
+  ```python
+  def test_create_and_verify_booking_ai(self):
+    payload = get_booking_payload_with_params(firstname="AIUser", lastname="Assistant")
+    create_resp = self.api_client.post(Config.BOOKING_ENDPOINT, payload)
+    self.assertion_helper.assert_status_code(create_resp)
+    booking_id = create_resp.json().get("bookingid")
+    assert booking_id is not None
+
+    get_resp = self.api_client.get(f"{Config.BOOKING_ENDPOINT}/{booking_id}")
+    self.assertion_helper.assert_status_code(get_resp)
+    self.assertion_helper.assert_field_value(get_resp, "firstname", "AIUser")
+    self.assertion_helper.assert_field_value(get_resp, "lastname", "Assistant")
+  ```
+
+  Add this snippet to your tests to concretely show how Claude can generate executable test code that follows the repository patterns.
+
 **Pro Tip:** Keep these templates handy and reuse them for all your test automation prompts! 🚀

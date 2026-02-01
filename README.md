@@ -78,20 +78,26 @@ pytest -k "test_create_multiple_bookings" -v
 
 ## 📊 Test Coverage
 
-The test suite includes **9 comprehensive test cases**:
+The test suite includes **11 comprehensive test cases** with ~92% code coverage (see `htmlcov/index.html` for details):
 
-### Main Test Suite (TestBookingAPI)
+### POST /booking - Create Booking (Main Tests)
 1. **test_create_booking_with_valid_payload** - Create booking and validate full response structure
-2. **test_response_contains_booking_id** - Verify bookingid is present and valid
-3. **test_booking_details_match_request** - Validate firstname, lastname, and price match request
+2. **test_response_contains_booking_id** - Verify `bookingid` is present and valid
+3. **test_booking_details_match_request** - Validate `firstname`, `lastname`, and `totalprice` match request
 4. **test_booking_dates_validation** - Verify check-in and check-out dates are correct
-5. **test_deposit_paid_field** - Verify depositpaid field works correctly
-6. **test_create_multiple_bookings** - Parameterized test with multiple data sets
+5. **test_deposit_paid_field** - Verify `depositpaid` field behavior for `true`/`false`
+6. **test_create_multiple_bookings** - Parameterized test using 3 data sets (counts as 3 parameterized cases)
 
-### Edge Cases Suite (TestBookingAPIEdgeCases)
-7. **test_booking_with_special_characters** - Test special characters in guest names
-8. **test_booking_with_zero_price** - Test zero price bookings
-9. **test_booking_with_high_price** - Test high price values
+### Edge Cases Suite
+7. **test_booking_with_special_characters** - Test special characters in guest names (e.g., José, García-Smith)
+8. **test_booking_with_zero_price** - Test zero price bookings (`totalprice = 0`)
+9. **test_booking_with_high_price** - Test high price bookings (`totalprice = 999999`)
+
+### Suggested / Planned Extensions (not yet implemented)
+10. **GET /booking/{id} and invalid ID handling** - (suggested) verify retrieval and 404 behaviors
+11. **Negative POST scenarios & schema validation** - (suggested) missing required fields, invalid types, and JSON Schema validation
+
+Note: The current repository implements the POST/create flow (main + edge cases). Adding auth, GET/PUT/DELETE flows and explicit JSON Schema checks will strengthen the framework; see the `TODO` section and `CLAUDE_PROMPTS.md` for planned items.
 
 ## 📝 Example Request Payload
 

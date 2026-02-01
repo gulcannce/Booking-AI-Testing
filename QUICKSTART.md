@@ -2,9 +2,10 @@
 
 ## 🚀 Installation & Setup
 
-### 1️⃣ Clone or Navigate to Project
+### 1️⃣ Clone Repository
 ```bash
-cd /Users/gulcan/Desktop/booking
+git clone https://github.com/gulcannce/Booking-AI-Testing.git
+cd Booking-AI-Testing
 ```
 
 ### 2️⃣ Activate Virtual Environment (One-time Setup)
@@ -18,20 +19,20 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 4️⃣ Optional: Add to ~/.zshrc for Auto-Activation
-Add this to your `~/.zshrc` file:
+### 4️⃣ Optional: Create a Shell Alias for Quick Access
+Add this to your `~/.zshrc` or `~/.bash_profile` file:
 
 ```zsh
-# Booking API Test Automation
-alias booking='cd /Users/gulcan/Desktop/booking && source .venv/bin/activate'
+# Booking API Test Automation - Quick access
+alias booking='cd "$(git rev-parse --show-toplevel)" && source .venv/bin/activate'
 ```
 
 Then reload your shell:
 ```bash
-source ~/.zshrc
+source ~/.zshrc  # or source ~/.bash_profile
 ```
 
-Now you can simply type `booking` to jump into the project with venv activated!
+Now you can simply type `booking` from anywhere to jump into the project with venv activated.
 
 ---
 
