@@ -7,7 +7,7 @@ A comprehensive Python-based API test automation framework for the Restful Booke
 This project demonstrates QA automation best practices for testing the Booking API endpoint:
 - **Endpoint**: `POST https://restful-booker.herokuapp.com/booking`
 - **Framework**: pytest
-- **HTTP Client**: requests
+- **HTTP Client**: requests 
 - **Python Version**: 3.8+
 
 ## 🏗️ Project Structure
